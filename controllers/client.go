@@ -4,6 +4,8 @@ import (
 	"demo-gin-api-with-gomod/database"
 	"demo-gin-api-with-gomod/models"
 
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,7 +15,7 @@ func GetAllUser(c *gin.Context) {
 
 	results, err := db.Query("SELECT * FROM user")
 	if err != nil {
-		c.JSON(500, gin.H{
+		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
 	}
@@ -23,7 +25,7 @@ func GetAllUser(c *gin.Context) {
 		var user models.User
 		err := results.Scan(&user.ID, &user.Name)
 		if err != nil {
-			c.JSON(500, gin.H{
+			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),
 			})
 		}
@@ -32,7 +34,7 @@ func GetAllUser(c *gin.Context) {
 			Name: user.Name,
 		})
 	}
-	c.JSON(200, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"result": users,
 	})
 
@@ -46,11 +48,11 @@ func GetUserByID(c *gin.Context) {
 	var user models.User
 	err := db.QueryRow("SELECT * FROM user WHERE id = ?", c.Param("id")).Scan(&user.ID, &user.Name)
 	if err != nil {
-		c.JSON(500, gin.H{
+		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
 	}
-	c.JSON(200, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"result": user,
 	})
 
@@ -63,17 +65,17 @@ func DeleteUserByID(c *gin.Context) {
 
 	result, err := db.Exec("DELETE FROM user WHERE id = ?", c.Param("id"))
 	if err != nil {
-		c.JSON(500, gin.H{
+		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
 	} else {
 		num, err := result.RowsAffected()
 		if err != nil {
-			c.JSON(500, gin.H{
+			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),
 			})
 		} else {
-			c.JSON(200, gin.H{
+			c.JSON(http.StatusOK, gin.H{
 				"nums row affected": num,
 			})
 		}
@@ -90,16 +92,16 @@ func CreateUser(c *gin.Context) {
 	if err := c.ShouldBindJSON(&user); err == nil {
 		post, err := db.Prepare("INSERT INTO user(id, name) VALUES (?,?)")
 		if err != nil {
-			c.JSON(500, gin.H{
+			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),
 			})
 		}
 		post.Exec(user.ID, user.Name)
-		c.JSON(200, gin.H{
+		c.JSON(http.StatusOK, gin.H{
 			"messages": "inserted",
 		})
 	} else {
-		c.JSON(500, gin.H{
+		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
 	}
@@ -115,16 +117,16 @@ func UpdateUserByID(c *gin.Context) {
 	if err := c.ShouldBindJSON(&user); err == nil {
 		post, err := db.Prepare("UPDATE user SET name=? WHERE id=" + c.Param("id"))
 		if err != nil {
-			c.JSON(500, gin.H{
+			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),
 			})
 		}
 		post.Exec(user.Name)
-		c.JSON(200, gin.H{
+		c.JSON(http.StatusOK, gin.H{
 			"messages": "updated",
 		})
 	} else {
-		c.JSON(500, gin.H{
+		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
 	}
