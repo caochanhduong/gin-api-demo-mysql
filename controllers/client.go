@@ -10,12 +10,14 @@ import (
 // GetAllUser reads all information about user in database
 func GetAllUser(c *gin.Context) {
 	db := database.DBConn()
+
 	results, err := db.Query("SELECT * FROM user")
 	if err != nil {
 		c.JSON(500, gin.H{
 			"error": err.Error(),
 		})
 	}
+
 	users := make([]models.User, 0)
 	for results.Next() {
 		var user models.User
@@ -33,12 +35,14 @@ func GetAllUser(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"result": users,
 	})
+
 	db.Close()
 }
 
 // GetUserByID gets information of a user in database
 func GetUserByID(c *gin.Context) {
 	db := database.DBConn()
+
 	var user models.User
 	err := db.QueryRow("SELECT * FROM user WHERE id = ?", c.Param("id")).Scan(&user.ID, &user.Name)
 	if err != nil {
@@ -49,12 +53,14 @@ func GetUserByID(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"result": user,
 	})
+
 	db.Close()
 }
 
 // DeleteUserByID deletes information of a user in database
 func DeleteUserByID(c *gin.Context) {
 	db := database.DBConn()
+
 	result, err := db.Exec("DELETE FROM user WHERE id = ?", c.Param("id"))
 	if err != nil {
 		c.JSON(500, gin.H{
@@ -72,6 +78,7 @@ func DeleteUserByID(c *gin.Context) {
 			})
 		}
 	}
+
 	db.Close()
 }
 
@@ -87,7 +94,6 @@ func CreateUser(c *gin.Context) {
 				"error": err.Error(),
 			})
 		}
-
 		post.Exec(user.ID, user.Name)
 		c.JSON(200, gin.H{
 			"messages": "inserted",
@@ -97,6 +103,8 @@ func CreateUser(c *gin.Context) {
 			"error": err.Error(),
 		})
 	}
+
+	db.Close()
 }
 
 // UpdateUserByID updates information of a user in database
@@ -111,7 +119,6 @@ func UpdateUserByID(c *gin.Context) {
 				"error": err.Error(),
 			})
 		}
-
 		post.Exec(user.Name)
 		c.JSON(200, gin.H{
 			"messages": "updated",
@@ -121,4 +128,6 @@ func UpdateUserByID(c *gin.Context) {
 			"error": err.Error(),
 		})
 	}
+
+	db.Close()
 }
