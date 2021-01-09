@@ -11,7 +11,7 @@ import (
 // User is a struct containing user info
 func setupRouter() *gin.Engine {
 	c := gin.Default()
-	client := c.Group("/api")
+	client := c.Group("/apx")
 	{
 		client.GET("/user", controllers.GetAllUser)
 		client.GET("/user/:id", controllers.GetUserByID)
